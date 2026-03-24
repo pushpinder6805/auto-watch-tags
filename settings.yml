@@ -1,0 +1,9 @@
+state_user_field_id:
+  default: 13
+  type: integer
+  description: "User field ID for states field"
+
+notification_level:
+  default: 3
+  type: integer
+  description: "3 = Watching"
