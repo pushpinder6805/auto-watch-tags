@@ -1,15 +1,19 @@
 import { apiInitializer } from "discourse/lib/api";
 
 export default apiInitializer("0.8", (api) => {
+  const fieldKey = "user_field_" + settings.state_user_field_id;
+
+  // ✅ expose custom field to frontend
+  api.includeCurrentUserCustomFields(fieldKey);
+
   api.onPageChange(() => {
     const user = api.getCurrentUser();
     if (!user) return;
 
-    // skip if already processed (per browser)
     if (localStorage.getItem("auto-watch-tags-" + user.id)) return;
 
-    const fieldKey = "user_field_" + settings.state_user_field_id;
     const raw = user.custom_fields?.[fieldKey];
+    console.log("States raw:", raw);
 
     if (!raw) return;
 
@@ -23,6 +27,8 @@ export default apiInitializer("0.8", (api) => {
           .replace(/\s+/g, "_")
       )
       .filter(Boolean);
+
+    console.log("Tags:", tags);
 
     if (!tags.length) return;
 
@@ -40,9 +46,9 @@ export default apiInitializer("0.8", (api) => {
       }),
     })
       .then(() => {
+        console.log("✅ Tags applied");
         localStorage.setItem("auto-watch-tags-" + user.id, "1");
-        console.log("Auto-watched tags:", tags);
       })
-      .catch((err) => console.warn("Tag watch failed", err));
+      .catch((err) => console.warn("❌ Tag watch failed", err));
   });
 });
